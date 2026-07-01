@@ -1,0 +1,717 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no">
+<title>GUMMA</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0B0714;
+    --surface:#150F26;
+    --card:#1E1636;
+    --card-2:#271C44;
+    --lime:#D4FF3F;
+    --pink:#FF3EA5;
+    --cyan:#3EE8FF;
+    --text:#F5F1FF;
+    --dim:#9C8FC4;
+    --line:#332752;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 15% 0%, rgba(255,62,165,0.20), transparent 45%),
+      radial-gradient(circle at 85% 15%, rgba(62,232,255,0.16), transparent 40%),
+      var(--void);
+    color:var(--text);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+  }
+  #app{
+    width:100%;
+    max-width:480px;
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    position:relative;
+  }
+  .mono{font-family:'JetBrains Mono',monospace;}
+  .display{font-family:'Space Grotesk',sans-serif;}
+
+  /* ---------- TOPBAR ---------- */
+  .topbar{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 20px 10px;
+  }
+  .wordmark{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:22px;
+    letter-spacing:1px;
+    background:linear-gradient(90deg,var(--lime),var(--cyan));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+  }
+  .wordmark span{color:var(--pink); -webkit-text-fill-color:var(--pink);}
+  .me-chip{
+    font-size:12px; color:var(--dim);
+    border:1px solid var(--line);
+    padding:6px 10px; border-radius:999px;
+    display:flex; align-items:center; gap:6px;
+  }
+  .me-chip b{color:var(--text); font-weight:600;}
+
+  main{flex:1; padding:6px 20px 100px; overflow-y:auto;}
+  .screen{display:none; animation:fadeIn .25s ease;}
+  .screen.active{display:block;}
+  @keyframes fadeIn{from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;}}
+
+  /* ---------- LOGIN ---------- */
+  #login-screen{
+    flex:1; display:flex; flex-direction:column; justify-content:center;
+    padding:32px 28px;
+  }
+  .login-hero{
+    text-align:center; margin-bottom:36px;
+  }
+  .login-hero .big{
+    font-family:'Space Grotesk',sans-serif;
+    font-weight:700;
+    font-size:56px;
+    line-height:0.95;
+    letter-spacing:1px;
+    background:linear-gradient(120deg,var(--lime) 10%, var(--cyan) 55%, var(--pink) 100%);
+    -webkit-background-clip:text; background-clip:text; color:transparent;
+  }
+  .login-hero p{color:var(--dim); margin-top:10px; font-size:14px;}
+  .field-label{font-size:12px; text-transform:uppercase; letter-spacing:1.5px; color:var(--dim); margin-bottom:8px; display:block;}
+  input[type=text]{
+    width:100%; padding:16px 16px;
+    background:var(--card); border:1.5px solid var(--line);
+    border-radius:14px; color:var(--text); font-size:17px;
+    font-family:'Inter',sans-serif; outline:none;
+  }
+  input[type=text]:focus{border-color:var(--cyan);}
+  .btn{
+    border:none; border-radius:14px; padding:16px 18px;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;
+    cursor:pointer; width:100%; letter-spacing:0.3px;
+    transition:transform .12s ease, opacity .12s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{background:linear-gradient(90deg,var(--lime),var(--cyan)); color:#0B0714;}
+  .btn-pink{background:var(--pink); color:#1a0313;}
+  .btn-ghost{background:transparent; border:1.5px solid var(--line); color:var(--text);}
+  .btn:disabled{opacity:0.4; cursor:not-allowed;}
+  .btn-block{margin-top:14px;}
+
+  /* ---------- SECTION HEADERS ---------- */
+  .section-title{
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:22px;
+    margin:18px 0 4px;
+  }
+  .section-sub{color:var(--dim); font-size:13px; margin-bottom:18px;}
+
+  /* ---------- PODIUM ---------- */
+  .podium{
+    display:flex; align-items:flex-end; gap:10px;
+    margin:10px 0 22px;
+  }
+  .pod-col{flex:1; display:flex; flex-direction:column; align-items:center;}
+  .pod-avatar{
+    width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:16px;
+    margin-bottom:8px; color:#0B0714;
+  }
+  .pod-name{font-size:12px; font-weight:600; text-align:center; max-width:90px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .pod-pts{font-size:11px; color:var(--dim); margin-top:2px;}
+  .pod-bar{
+    width:100%; border-radius:12px 12px 0 0; margin-top:10px;
+    display:flex; align-items:flex-start; justify-content:center; padding-top:8px;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:20px; color:#0B0714;
+  }
+  .pod-1 .pod-bar{height:96px; background:linear-gradient(180deg,var(--lime),#9FD121); box-shadow:0 0 24px rgba(212,255,63,0.45);}
+  .pod-2 .pod-bar{height:70px; background:linear-gradient(180deg,var(--cyan),#28AEC2);}
+  .pod-3 .pod-bar{height:52px; background:linear-gradient(180deg,var(--pink),#C42E80);}
+  .pod-1 .pod-avatar{background:var(--lime);}
+  .pod-2 .pod-avatar{background:var(--cyan);}
+  .pod-3 .pod-avatar{background:var(--pink);}
+
+  .rank-row{
+    display:flex; align-items:center; gap:12px;
+    background:var(--card); border:1px solid var(--line);
+    border-radius:14px; padding:12px 14px; margin-bottom:9px;
+  }
+  .rank-row.me{border-color:var(--lime); box-shadow:0 0 0 1px var(--lime) inset;}
+  .rank-pos{
+    font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--dim);
+    width:22px; text-align:center; font-size:14px;
+  }
+  .rank-avatar{
+    width:36px; height:36px; border-radius:50%; background:var(--card-2);
+    display:flex; align-items:center; justify-content:center;
+    font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:14px; color:var(--cyan);
+    flex-shrink:0;
+  }
+  .rank-name{flex:1; font-weight:600; font-size:15px;}
+  .rank-pts{font-family:'JetBrains Mono',monospace; font-weight:700; color:var(--lime); font-size:15px;}
+  .empty{color:var(--dim); font-size:14px; text-align:center; padding:30px 10px;}
+
+  /* ---------- DRINKS ---------- */
+  .drink-card{
+    background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:18px; margin-bottom:14px;
+    display:flex; align-items:center; gap:14px;
+  }
+  .drink-emoji{font-size:32px;}
+  .drink-info{flex:1;}
+  .drink-info .name{font-weight:700; font-size:16px; font-family:'Space Grotesk',sans-serif;}
+  .drink-info .pts{color:var(--dim); font-size:12px; margin-top:2px;}
+  .drink-btn{
+    background:var(--card-2); border:1px solid var(--line); color:var(--lime);
+    font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;
+    padding:10px 16px; border-radius:10px; cursor:pointer;
+  }
+  .drink-btn:active{transform:scale(0.95);}
+  .video-note{
+    font-size:12px; color:var(--dim); margin-top:10px; line-height:1.5;
+    background:var(--surface); border-left:2px solid var(--pink); padding:8px 10px; border-radius:6px;
+  }
+
+  /* ---------- CHALLENGE ---------- */
+  .challenge-card{
+    background:linear-gradient(160deg, var(--card-2), var(--card));
+    border:1.5px solid var(--pink); border-radius:18px; padding:22px;
+    position:relative; overflow:hidden;
+  }
+  .challenge-card::before{
+    content:"MISIÓN SECRETA"; position:absolute; top:14px; right:-34px;
+    background:var(--pink); color:#1a0313; font-size:10px; font-weight:700;
+    padding:4px 40px; transform:rotate(35deg);
+    font-family:'JetBrains Mono',monospace; letter-spacing:1px;
+  }
+  .challenge-target{font-size:13px; color:var(--dim); margin-bottom:6px;}
+  .challenge-target b{color:var(--cyan);}
+  .challenge-text{font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:19px; line-height:1.35; margin:8px 0 18px;}
+  .challenge-status{
+    display:inline-block; font-size:11px; padding:5px 10px; border-radius:999px;
+    background:var(--surface); color:var(--dim); margin-bottom:14px;
+  }
+  .challenge-status.done{background:rgba(212,255,63,0.15); color:var(--lime);}
+
+  /* ---------- PROFILE ---------- */
+  .stat-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin:16px 0;}
+  .stat-box{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px;}
+  .stat-box .num{font-family:'JetBrains Mono',monospace; font-weight:700; font-size:24px; color:var(--lime);}
+  .stat-box .lbl{font-size:11px; color:var(--dim); margin-top:4px; text-transform:uppercase; letter-spacing:1px;}
+  .history-row{display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--line); font-size:14px;}
+  .history-row .t{color:var(--dim); font-size:12px;}
+
+  /* ---------- NAV ---------- */
+  #nav{
+    position:absolute; bottom:0; left:0; right:0;
+    display:flex; background:rgba(21,15,38,0.92); backdrop-filter:blur(10px);
+    border-top:1px solid var(--line); padding:10px 8px calc(10px + env(safe-area-inset-bottom));
+  }
+  .nav-btn{
+    flex:1; background:none; border:none; color:var(--dim);
+    display:flex; flex-direction:column; align-items:center; gap:3px;
+    font-size:10.5px; font-family:'Inter',sans-serif; font-weight:600; cursor:pointer;
+    padding:6px 0;
+  }
+  .nav-btn .ic{font-size:20px;}
+  .nav-btn.active{color:var(--lime);}
+
+  .toast{
+    position:fixed; top:16px; left:50%; transform:translateX(-50%) translateY(-20px);
+    background:var(--lime); color:#0B0714; font-weight:700; font-family:'Space Grotesk',sans-serif;
+    padding:12px 20px; border-radius:12px; font-size:14px; z-index:999;
+    opacity:0; transition:all .3s ease; pointer-events:none; white-space:nowrap;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(0);}
+  .spin{
+    width:16px;height:16px;border-radius:50%;
+    border:2px solid rgba(255,255,255,0.3); border-top-color:var(--void);
+    animation:sp 0.7s linear infinite; display:inline-block;
+  }
+  @keyframes sp{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <div class="toast" id="toast"></div>
+
+  <!-- LOGIN -->
+  <div id="login-screen">
+    <div class="login-hero">
+      <div class="big">GUMMA</div>
+      <p>Regístrate, bebe, cumple tu misión secreta y sube al ranking 🔥</p>
+    </div>
+    <label class="field-label">Tu nombre</label>
+    <input type="text" id="name-input" placeholder="Ej. Marta, Toni..." maxlength="20" autocomplete="off">
+    <button class="btn btn-primary btn-block" id="join-btn">Entrar a la fiesta</button>
+    <div id="login-error" style="color:var(--pink); font-size:12px; margin-top:10px; text-align:center;"></div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="main-app" style="display:none; flex:1; display:flex; flex-direction:column;">
+    <div class="topbar">
+      <div class="wordmark">GUM<span>MA</span></div>
+      <div class="me-chip">👤 <b id="me-name-chip">—</b></div>
+    </div>
+
+    <main>
+      <!-- RANKING -->
+      <section class="screen" id="screen-ranking">
+        <div class="section-title">🏆 Ranking</div>
+        <div class="section-sub">Se actualiza solo. Vigila tu espalda.</div>
+        <div id="podium-wrap"></div>
+        <div id="ranking-list"></div>
+      </section>
+
+      <!-- BEBER -->
+      <section class="screen" id="screen-drinks">
+        <div class="section-title">🍻 Sumar puntos</div>
+        <div class="section-sub">Toca cuando termines la copa.</div>
+
+        <div class="drink-card">
+          <div class="drink-emoji">🍺</div>
+          <div class="drink-info"><div class="name">Cerveza</div><div class="pts">+2 puntos</div></div>
+          <button class="drink-btn" onclick="quickDrink('cerveza',2,'Cerveza 🍺')">+2</button>
+        </div>
+
+        <div class="drink-card">
+          <div class="drink-emoji">🍹</div>
+          <div class="drink-info"><div class="name">Cubata</div><div class="pts">+6 puntos</div></div>
+          <button class="drink-btn" onclick="quickDrink('cubata',6,'Cubata 🍹')">+6</button>
+        </div>
+
+        <div class="drink-card">
+          <div class="drink-emoji">⚡</div>
+          <div class="drink-info"><div class="name">Cerveza de trago</div><div class="pts">+8 puntos · requiere vídeo</div></div>
+          <button class="drink-btn" onclick="openVideoPicker('trago')">+8</button>
+        </div>
+
+        <div class="drink-card">
+          <div class="drink-emoji">🍬</div>
+          <div class="drink-info"><div class="name">Piti</div><div class="pts">+1 punto</div></div>
+          <button class="drink-btn" onclick="quickDrink('piti',1,'Piti 🍬')">+1</button>
+        </div>
+
+        <div class="drink-card">
+          <div class="drink-emoji">😮</div>
+          <div class="drink-info"><div class="name">Piti de un calo</div><div class="pts">+3 puntos · requiere vídeo</div></div>
+          <button class="drink-btn" onclick="openVideoPicker('calo')">+3</button>
+        </div>
+
+        <input type="file" id="video-input" accept="video/*" capture="environment" style="display:none" onchange="handleVideoSelected(event)">
+        <div class="video-note">📹 Para que cuenten la cerveza de trago y el piti de un calo tenéis que adjuntar el vídeo como prueba. Guardamos el nombre del archivo y la hora como registro de la prueba.</div>
+      </section>
+
+      <!-- RETO -->
+      <section class="screen" id="screen-challenge">
+        <div class="section-title">🎯 Tu reto secreto</div>
+        <div class="section-sub">Solo tú lo sabes. Cúmplelo en medio de la fiesta.</div>
+        <div id="challenge-wrap"></div>
+      </section>
+
+      <!-- PERFIL -->
+      <section class="screen" id="screen-profile">
+        <div class="section-title">👤 Mi perfil</div>
+        <div class="stat-grid">
+          <div class="stat-box"><div class="num" id="profile-points">0</div><div class="lbl">Puntos totales</div></div>
+          <div class="stat-box"><div class="num" id="profile-pos">—</div><div class="lbl">Posición</div></div>
+        </div>
+        <div class="section-title" style="font-size:16px; margin-top:22px;">Historial de bebidas</div>
+        <div id="history-list"></div>
+        <button class="btn btn-ghost" style="margin-top:24px;" onclick="logout()">Cambiar de jugador</button>
+      </section>
+    </main>
+
+    <div id="nav">
+      <button class="nav-btn active" data-screen="ranking" onclick="showScreen('ranking')"><span class="ic">🏆</span>Ranking</button>
+      <button class="nav-btn" data-screen="drinks" onclick="showScreen('drinks')"><span class="ic">🍻</span>Beber</button>
+      <button class="nav-btn" data-screen="challenge" onclick="showScreen('challenge')"><span class="ic">🎯</span>Reto</button>
+      <button class="nav-btn" data-screen="profile" onclick="showScreen('profile')"><span class="ic">👤</span>Perfil</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ======================= DATA LAYER ======================= */
+const CHALLENGE_TEMPLATES = [
+  "Consigue que {t} te firme el brazo con boli antes de que acabe la noche.",
+  "Haz que {t} baile contigo 20 segundos sin decirle por qué.",
+  "Convence a {t} de intercambiar una prenda de ropa contigo.",
+  "Consigue que {t} te invite a un chupito.",
+  "Haz que {t} te presente a alguien como 'mi mejor amigo/a de toda la vida'.",
+  "Sácate una foto random con {t} haciendo el mismo gesto absurdo.",
+  "Consigue que {t} grite '¡GUMMA!' a pleno pulmón.",
+  "Haz que {t} te enseñe su mejor paso de baile en directo.",
+  "Pídele a {t} un dato random que nadie más sepa de él/ella.",
+  "Consigue un abrazo de oso de {t} delante de más gente.",
+  "Haz que {t} adivine cuál es tu canción favorita del festival.",
+  "Brinda con {t} diciendo en voz alta 'por los mejores de la fiesta'.",
+  "Consigue que {t} te enseñe la última foto random de su móvil.",
+  "Haz que {t} te dedique un cumplido exagerado delante de alguien más.",
+  "Consigue que {t} te haga una foto en una pose muy random.",
+  "Haz que {t} te cuente su peor cita de la historia.",
+  "Convence a {t} de que grabe un vídeo diciendo tu nombre como si fueras famoso/a.",
+  "Consigue que {t} te deje elegir su próxima canción para bailar.",
+  "Haz que {t} imite a un animal delante de ti sin explicarle el motivo.",
+  "Pídele a {t} que te enseñe su mejor selfie del año.",
+  "Consigue que {t} te llame 'jefe/a' durante los próximos 5 minutos.",
+  "Haz que {t} te presente como el 'nuevo fichaje' del grupo.",
+  "Convence a {t} de intercambiar zapatos contigo 1 minuto.",
+  "Consigue que {t} te haga un cumplido en otro idioma.",
+  "Haz que {t} te enseñe a hacer su gesto o mueca característica.",
+  "Pídele a {t} que brinde contigo a la voz de '¡arriba Gumma!'.",
+  "Consigue que {t} te chivé un secreto random (inventado o real).",
+  "Haz que {t} te dedique una canción cantándola 5 segundos.",
+  "Convence a {t} de posar contigo como si fuerais modelos de revista.",
+  "Consigue que {t} te presente con un mote inventado en el momento.",
+  "Haz que {t} te dé la mano y te diga 'un placer conocerte' como si fuera la primera vez.",
+  "Pídele a {t} que grabe diciendo cuál cree que es tu superpoder."
+];
+
+const PERSONAL_ME_KEY = 'gumma:me';
+const SHARED_PLAYERS_KEY = 'gumma:players';
+const SHARED_DRINKS_KEY = 'gumma:drinks';
+const SHARED_CHALLENGES_KEY = 'gumma:challenges';
+
+let me = null;          // {id, name}
+let players = [];       // [{id,name,points,joinedAt}]
+let drinks = [];        // [{id,playerId,type,label,points,note,ts}]
+let challenges = [];    // [{id,playerId,targetId,targetName,text,completed,ts}]
+let pollTimer = null;
+
+async function storageGet(key, shared){
+  try{
+    const res = await window.storage.get(key, !!shared);
+    return res ? JSON.parse(res.value) : null;
+  }catch(e){ return null; }
+}
+async function storageSet(key, value, shared, attempt){
+  attempt = attempt || 1;
+  try{
+    await window.storage.set(key, JSON.stringify(value), !!shared);
+    return true;
+  }catch(e){
+    console.error('storage set failed (attempt '+attempt+')', e);
+    if(attempt < 3){
+      await new Promise(r => setTimeout(r, 250 * attempt));
+      return storageSet(key, value, shared, attempt + 1);
+    }
+    toast('No se pudo guardar, revisa tu conexión');
+    return false;
+  }
+}
+
+async function loadAll(){
+  players = (await storageGet(SHARED_PLAYERS_KEY, true)) || [];
+  drinks = (await storageGet(SHARED_DRINKS_KEY, true)) || [];
+  challenges = (await storageGet(SHARED_CHALLENGES_KEY, true)) || [];
+}
+
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+/* ======================= TOAST ======================= */
+let toastTimer;
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>el.classList.remove('show'), 2200);
+}
+
+/* ======================= LOGIN / REGISTER ======================= */
+document.getElementById('join-btn').addEventListener('click', joinParty);
+document.getElementById('name-input').addEventListener('keydown', e=>{ if(e.key==='Enter') joinParty(); });
+
+async function joinParty(){
+  const input = document.getElementById('name-input');
+  const err = document.getElementById('login-error');
+  const name = input.value.trim();
+  err.textContent = '';
+  if(!name){ err.textContent = 'Escribe tu nombre para entrar.'; return; }
+
+  const btn = document.getElementById('join-btn');
+  btn.disabled = true; btn.innerHTML = '<span class="spin"></span>';
+
+  await loadAll();
+
+  // reuse existing player if same name already joined from this device flow got lost
+  let existing = players.find(p => p.name.toLowerCase() === name.toLowerCase());
+  if(existing){
+    me = { id: existing.id, name: existing.name };
+  } else {
+    const newPlayer = { id: uid(), name, points:0, joinedAt: Date.now() };
+    players.push(newPlayer);
+    await storageSet(SHARED_PLAYERS_KEY, players, true);
+    me = { id: newPlayer.id, name: newPlayer.name };
+  }
+  await storageSet(PERSONAL_ME_KEY, me, false);
+
+  await tryAssignChallenge();
+  enterApp();
+}
+
+async function tryAssignChallenge(){
+  if(!me) return;
+  const already = challenges.find(c => c.playerId === me.id);
+  if(already) return;
+  const candidates = players.filter(p => p.id !== me.id);
+  if(candidates.length === 0) return; // not enough players yet
+  const target = candidates[Math.floor(Math.random()*candidates.length)];
+
+  const usedIdx = new Set(challenges.map(c => c.templateIndex));
+  let pool = CHALLENGE_TEMPLATES.map((_, i) => i).filter(i => !usedIdx.has(i));
+  if(pool.length === 0) pool = CHALLENGE_TEMPLATES.map((_, i) => i); // all used, allow repeats
+
+  const templateIndex = pool[Math.floor(Math.random()*pool.length)];
+  const text = CHALLENGE_TEMPLATES[templateIndex].replace('{t}', target.name);
+  challenges.push({
+    id: uid(), playerId: me.id, targetId: target.id, targetName: target.name,
+    templateIndex, text, completed:false, ts: Date.now()
+  });
+  await storageSet(SHARED_CHALLENGES_KEY, challenges, true);
+}
+
+async function logout(){
+  me = null;
+  try{ await window.storage.delete(PERSONAL_ME_KEY, false); }catch(e){}
+  document.getElementById('main-app').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('name-input').value = '';
+}
+
+/* ======================= APP SHELL ======================= */
+function enterApp(){
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-app').style.display = 'flex';
+  document.getElementById('me-name-chip').textContent = me.name;
+  renderAll();
+  showScreen('ranking');
+  startPolling();
+}
+
+function startPolling(){
+  if(pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(async ()=>{
+    await loadAll();
+    await tryAssignChallenge();
+    renderAll();
+  }, 5000);
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.toggle('active', b.dataset.screen===name));
+  if(name==='ranking' || name==='profile') renderAll();
+}
+
+function renderAll(){
+  renderRanking();
+  renderChallenge();
+  renderProfile();
+}
+
+/* ======================= RANKING ======================= */
+function initials(name){ return name.trim().slice(0,2).toUpperCase(); }
+
+function renderRanking(){
+  const sorted = [...players].sort((a,b)=> b.points - a.points);
+  const podiumWrap = document.getElementById('podium-wrap');
+  const listWrap = document.getElementById('ranking-list');
+
+  if(sorted.length === 0){
+    podiumWrap.innerHTML = '';
+    listWrap.innerHTML = '<div class="empty">Aún no hay jugadores. ¡Sé el primero en aparecer!</div>';
+    return;
+  }
+
+  const top3 = sorted.slice(0,3);
+  const order = [1,0,2].filter(i => top3[i]); // render 2nd, 1st, 3rd visually
+  if(top3.length > 0){
+    podiumWrap.innerHTML = '<div class="podium">' + order.map(i=>{
+      const p = top3[i];
+      const cls = i===0 ? 'pod-1' : (i===1 ? 'pod-2' : 'pod-3');
+      const medal = i===0 ? '🥇' : (i===1 ? '🥈' : '🥉');
+      return `<div class="pod-col ${cls}">
+        <div class="pod-avatar">${initials(p.name)}</div>
+        <div class="pod-name">${escapeHtml(p.name)}</div>
+        <div class="pod-pts mono">${p.points} pts</div>
+        <div class="pod-bar">${medal}</div>
+      </div>`;
+    }).join('') + '</div>';
+  } else {
+    podiumWrap.innerHTML = '';
+  }
+
+  const rest = sorted.slice(3);
+  const restRows = rest.map((p,idx)=>{
+    const pos = idx+4;
+    const isMe = me && p.id === me.id;
+    return `<div class="rank-row ${isMe?'me':''}">
+      <div class="rank-pos">${pos}</div>
+      <div class="rank-avatar">${initials(p.name)}</div>
+      <div class="rank-name">${escapeHtml(p.name)}${isMe?' (tú)':''}</div>
+      <div class="rank-pts mono">${p.points}</div>
+    </div>`;
+  }).join('');
+
+  // also mark me if I'm in top3 by adding a subtle row duplicate list style below podium for clarity on mobile
+  listWrap.innerHTML = restRows || (sorted.length<=3 ? '' : '<div class="empty">Nadie más en el ranking todavía.</div>');
+}
+
+/* ======================= DRINKS ======================= */
+async function quickDrink(type, points, customLabel){
+  if(!me) return;
+  const labels = { cerveza:'Cerveza 🍺', cubata:'Cubata 🍹' };
+  const label = customLabel || labels[type] || type;
+  await registerDrink(type, points, label, null);
+  toast(`+${points} puntos · ${label}`);
+}
+
+let pendingVideoType = null;
+const VIDEO_TYPES = {
+  trago: { points: 8, label: 'Cerveza de trago ⚡' },
+  calo:  { points: 3, label: 'Piti de un calo 😮' }
+};
+
+function openVideoPicker(type){
+  if(!me) return;
+  pendingVideoType = type;
+  document.getElementById('video-input').click();
+}
+
+async function handleVideoSelected(evt){
+  const file = evt.target.files && evt.target.files[0];
+  evt.target.value = '';
+  if(!file || !pendingVideoType) return;
+  const conf = VIDEO_TYPES[pendingVideoType];
+  await registerDrink(pendingVideoType, conf.points, conf.label, file.name);
+  toast(`+${conf.points} puntos · ${conf.label} (con vídeo)`);
+  pendingVideoType = null;
+}
+
+async function registerDrink(type, points, label, note){
+  await loadAll();
+  const p = players.find(pl => pl.id === me.id);
+  if(!p) return;
+  p.points += points;
+  drinks.push({ id: uid(), playerId: me.id, type, label, points, note, ts: Date.now() });
+  await storageSet(SHARED_PLAYERS_KEY, players, true);
+  await storageSet(SHARED_DRINKS_KEY, drinks, true);
+  renderAll();
+}
+
+/* ======================= CHALLENGE ======================= */
+function renderChallenge(){
+  const wrap = document.getElementById('challenge-wrap');
+  if(!me){ wrap.innerHTML=''; return; }
+  const c = challenges.find(ch => ch.playerId === me.id);
+
+  if(!c){
+    wrap.innerHTML = `
+      <div class="challenge-card">
+        <div class="challenge-target">Esperando a más jugadores...</div>
+        <div class="challenge-text">Tu misión aparecerá en cuanto se una alguien más a la fiesta 👀</div>
+        <button class="btn btn-pink" onclick="manualAssign()">Buscar reto ahora</button>
+      </div>`;
+    return;
+  }
+
+  wrap.innerHTML = `
+    <div class="challenge-card">
+      <div class="challenge-target">Objetivo: <b>${escapeHtml(c.targetName)}</b></div>
+      <div class="challenge-text">${escapeHtml(c.text)}</div>
+      <div class="challenge-status ${c.completed?'done':''}">${c.completed ? '✅ Completado · +10 pts' : '⏳ Pendiente'}</div>
+      ${c.completed ? '' : '<button class="btn btn-primary" onclick="completeChallenge()">Ya lo he cumplido (+10)</button>'}
+    </div>`;
+}
+
+async function manualAssign(){
+  await loadAll();
+  await tryAssignChallenge();
+  renderAll();
+}
+
+async function completeChallenge(){
+  if(!me) return;
+  await loadAll();
+  const c = challenges.find(ch => ch.playerId === me.id);
+  const p = players.find(pl => pl.id === me.id);
+  if(!c || !p || c.completed) return;
+  c.completed = true;
+  p.points += 10;
+  await storageSet(SHARED_CHALLENGES_KEY, challenges, true);
+  await storageSet(SHARED_PLAYERS_KEY, players, true);
+  toast('¡Reto cumplido! +10 puntos 🎯');
+  renderAll();
+}
+
+/* ======================= PROFILE ======================= */
+function renderProfile(){
+  if(!me) return;
+  const p = players.find(pl => pl.id === me.id);
+  const sorted = [...players].sort((a,b)=> b.points - a.points);
+  const pos = sorted.findIndex(pl => pl.id === me.id) + 1;
+  document.getElementById('profile-points').textContent = p ? p.points : 0;
+  document.getElementById('profile-pos').textContent = pos > 0 ? ('#'+pos) : '—';
+
+  const myDrinks = drinks.filter(d => d.playerId === me.id).sort((a,b)=>b.ts-a.ts);
+  const hist = document.getElementById('history-list');
+  if(myDrinks.length === 0){
+    hist.innerHTML = '<div class="empty">Todavía no has registrado nada. ¡Ve a por la primera!</div>';
+    return;
+  }
+  hist.innerHTML = myDrinks.map(d=>{
+    const time = new Date(d.ts).toLocaleTimeString('es-ES', {hour:'2-digit', minute:'2-digit'});
+    return `<div class="history-row">
+      <div>${escapeHtml(d.label)}${d.note ? ' · 📹 '+escapeHtml(d.note) : ''}</div>
+      <div><span class="mono" style="color:var(--lime)">+${d.points}</span> <span class="t">${time}</span></div>
+    </div>`;
+  }).join('');
+}
+
+/* ======================= UTIL ======================= */
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+/* ======================= BOOT ======================= */
+(async function boot(){
+  let savedMe = null;
+  try{
+    const res = await window.storage.get(PERSONAL_ME_KEY, false);
+    savedMe = res ? JSON.parse(res.value) : null;
+  }catch(e){ savedMe = null; }
+
+  if(savedMe){
+    await loadAll();
+    const stillExists = players.find(p => p.id === savedMe.id);
+    if(stillExists){
+      me = savedMe;
+      await tryAssignChallenge();
+      enterApp();
+      return;
+    }
+  }
+  // stay on login screen
+})();
+</script>
+</body>
+</html>
